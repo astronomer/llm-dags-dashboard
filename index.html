@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Airflow LLM DAG Run Statuses</title>
+</head>
+<body>
+    <h1>Airflow LLM DAG Run Statuses</h1>
+    <table border="1">
+        <tr>
+            <th>DAG ID</th>
+            <th>Status 1</th>
+            <th>Status 2</th>
+            <th>Status 3</th>
+            <th>Status 4</th>
+            <th>Status 5</th>
+            <th>Status 6</th>
+            <th>Status 7</th>
+        </tr>
+    </table>
+
+    <script>
+
+        const table = document.querySelector('table');
+        const response = fetch('.github/scripts/dag_run_statuses.json');
+        const jsonData = response.json();
+        for (const dagId in jsonData) {
+            if (jsonData.hasOwnProperty(dagId)) {
+                const row = table.insertRow(-1);
+                const cell1 = row.insertCell(0);
+                cell1.innerHTML = dagId;
+
+                for (let i = 0; i < jsonData[dagId].length; i++) {
+                    const run = jsonData[dagId][i];
+                    const cell = row.insertCell(i + 1);
+                    cell.innerHTML = run.status;
+                    cell.title = run.execution_date; // Set the title attribute for hover text
+                }
+            }
+        }
+    </script>
+</body>
+</html>

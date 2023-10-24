@@ -1,0 +1,38 @@
+name: Update Airflow DAG Status
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update-dag-status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: pip install apache-airflow requests
+
+      - name: Run script
+        run: python ./.github/scripts/dag_runs.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "airflow-oss-bot"
+          git config --global user.email "airflow-oss-bot@astronomer.io"
+          git add dag_run_statuses.json
+          git commit -m "Update DAG run statuses"
+          git push
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
