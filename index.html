@@ -26,7 +26,7 @@
             const errorMessage = document.getElementById('error-message');
 
             try {
-                const response = await fetch('./.github/scripts/dag_run_statuses.json');
+                const response = await fetch('dag_run_statuses.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data' + response.statusText);
                 }
