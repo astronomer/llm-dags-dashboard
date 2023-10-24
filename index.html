@@ -3,18 +3,18 @@
 <head>
     <title>Airflow DAG Run Statuses</title>
     <style>
+        .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
         .success {
             background-color: green;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
         }
-
         .failed {
             background-color: red;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
         }
     </style>
 </head>
@@ -41,7 +41,7 @@
             const errorMessage = document.getElementById('error-message');
 
             try {
-                const response = await fetch('./.github/scripts/dag_run_statuses.json');
+                const response = await fetch('dag_run_statuses.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -55,7 +55,9 @@
                         for (let i = 0; i < jsonData[dagId].length; i++) {
                             const run = jsonData[dagId][i];
                             const cell = row.insertCell(i + 1);
-                            cell.className = run.status === 'success' ? 'success' : 'failed';
+                            const circle = document.createElement('div');
+                            circle.className = 'circle ' + (run.status === 'success' ? 'success' : 'failed');
+                            cell.appendChild(circle);
                             cell.title = run.execution_date; // Set the title attribute for hover text
                         }
                     }
