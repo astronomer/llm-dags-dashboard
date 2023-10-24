@@ -1,0 +1,84 @@
+---
+name: (Reusable workflows) Update Airflow DAG Status
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      git_rev:
+        description: 'The git revision to deploy'
+        required: false
+        default: ''
+  workflow_call:
+      inputs:
+        git_rev:
+          description: 'The git revision to deploy'
+          required: false
+          type: string
+          default: ''
+      secrets:
+        AIRFLOW_API_URL:
+          description: 'airflow api url'
+          required: true
+        AIRFLOW_API_TOKEN:
+          description: 'airflow api token'
+          required: true
+        SLACK_WEBHOOK_URL:
+          description: 'slack webhook url'
+          required: true
+
+
+jobs:
+  update-dag-status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11.6
+
+      - name: Install dependencies
+        run: pip install apache-airflow requests
+
+      - name: Run script
+        working-directory: ./
+        env:
+            AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
+            AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
+        run: python .github/scripts/dag_runs.py
+
+      - name: Check for changes and perform commit and push
+        run: |
+          git_status=$(git status --porcelain)
+          if [ -n "$git_status" ]; then
+            echo "Changes found"
+            git config --global user.name "airflow-oss-bot"
+            git config --global user.email "airflow-oss-bot@astronomer.io"
+            git add dag_run_statuses.json
+            git commit -m "Update DAG run statuses"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+
+      - name: Send Slack Message
+        env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+            sleep 300s  # GH Dashboard takes 5 minutes to update sleeping for that time
+            MESSAGE="LLM Dashboard job run success! Visit https://astronomer.github.io/llm-dags-dashboard for more details"
+            curl -X POST -H 'Content-type: application/json' --data '{
+              "text": "'"$MESSAGE"'"
+            }' $SLACK_WEBHOOK_URL
+

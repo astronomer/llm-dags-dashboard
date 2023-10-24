@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apache Airflow - LLM Provider Package Health</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4a4466;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-align: left;
+            margin-left: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 20px;
+            background-color: #fff;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            font-style: italic;
+        }
+
+        th {
+            background-color: #4a4466;
+            color: #fff;
+        }
+
+        th:nth-child(4) {
+            text-align: center;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .result-icon {
+            background-color: transparent;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .result-icon::before {
+            content: attr(data-icon);
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .result-icon:hover::before {
+            content: attr(data-date);
+            padding: 4px;
+            background-color: #4CAF50;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 2;
+            position: absolute;
+            top: -20px;
+            left: 0;
+        }
+
+        .failed::before {
+            background-color: #FF5733;
+        }
+
+        .result-cell {
+            white-space: nowrap;
+        }
+
+        #error-message {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #footer {
+            text-align: left;
+            padding: 10px;
+            background-color: #4a4466;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Apache Airflow - LLM Provider Package Health</h1>
+    </header>
+    <table>
+        <tr>
+            <th>DAG ID</th>
+            <th>Success</th>
+            <th>Failed</th>
+            <th>Last 7 runs (latest on the right)</th>
+        </tr>
+    </table>
+    <div id="error-message"></div>
+    <div id="footer">Last updated: <span id="latest-run-time"></span></div>
+    <script>
+         async function fetchDataAndDisplay() {
+            const table = document.querySelector('table');
+            const errorMessage = document.getElementById('error-message');
+            const latestRunTime = document.getElementById('latest-run-time');
+            const now = new Date();
+
+            try {
+                const response = await fetch('dag_run_statuses.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const jsonData = await response.json();
+                let latestExecutionDate = new Date(0);
+
+                for (const dagId in jsonData) {
+                    if (jsonData.hasOwnProperty(dagId)) {
+                        let successCount = 0;
+                        let failureCount = 0;
+                        let resultString = '';
+
+                        for (let i = 0; i < jsonData[dagId].length; i++) {
+                            const run = jsonData[dagId][i];
+                            const result = run.status === 'success' ? '✅' : '❌';
+                            const executionDate = new Date(run.execution_date);
+                            const dateDiff = Math.floor((now - executionDate) / (1000 * 60 * 60 * 24));
+
+                            if (i > 0) {
+                                resultString += '  ';
+                            }
+
+                            // Add a click event to display execution date on click
+                            resultString += `<span class="result-icon ${run.status}" data-date="${executionDate}">${result}</span>`;
+
+                            if (run.status === 'success') {
+                                successCount++;
+                            } else {
+                                failureCount++;
+                            }
+
+                            if (executionDate > latestExecutionDate) {
+                                latestExecutionDate = executionDate;
+                            }
+                        }
+
+                        const row = table.insertRow(-1);
+                        const cell1 = row.insertCell(0);
+                        cell1.innerHTML = dagId;
+                        const cell2 = row.insertCell(1);
+                        cell2.innerHTML = successCount;
+                        const cell3 = row.insertCell(2);
+                        cell3.innerHTML = failureCount;
+                        const cell4 = row.insertCell(3);
+                        cell4.className = 'result-cell';
+                        cell4.innerHTML = resultString;
+                    }
+                }
+
+                latestRunTime.textContent = latestExecutionDate;
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        fetchDataAndDisplay();
+    </script>
+</body>
+</html>
