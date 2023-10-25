@@ -45,8 +45,8 @@ jobs:
             fi
 
       - name: Commit and push changes
+        if: steps.check_changes.outcome == 'success'
         run: |
-          if: steps.check_changes.outcome == 'success'
           git config --global user.name "airflow-oss-bot"
           git config --global user.email "airflow-oss-bot@astronomer.io"
           git add dag_run_statuses.json
