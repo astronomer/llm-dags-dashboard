@@ -27,15 +27,17 @@ jobs:
         run: pip install apache-airflow requests
 
       - name: Run script
+        working-directory: ./
         env:
             AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
             AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
-        run: python ./.github/scripts/dag_runs.py
+        run: python .github/scripts/dag_runs.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "airflow-oss-bot"
           git config --global user.email "airflow-oss-bot@astronomer.io"
+          git status
           git add dag_run_statuses.json
           git commit -m "Update DAG run statuses"
           git push
