@@ -27,6 +27,9 @@ jobs:
         run: pip install apache-airflow requests
 
       - name: Run script
+        env:
+            AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
+            AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
         run: python ./.github/scripts/dag_runs.py
 
       - name: Commit and push changes
