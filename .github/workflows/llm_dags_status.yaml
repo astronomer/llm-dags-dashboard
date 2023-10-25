@@ -33,25 +33,19 @@ jobs:
             AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
         run: python .github/scripts/dag_runs.py
 
-      - name: Check for changes
-        id: check_changes
+      - name: Check for changes and perform commit and push
         run: |
-            git_status=$(git status --porcelain)
-            if [ -n "$git_status" ]; then
-              echo "Changes found"
-            else
-              echo "No changes to commit"
-              exit 0
-            fi
-
-      - name: Commit and push changes
-        if: steps.check_changes.run == 'Changes found'
-        run: |
-          git config --global user.name "airflow-oss-bot"
-          git config --global user.email "airflow-oss-bot@astronomer.io"
-          git add dag_run_statuses.json
-          git commit -m "Update DAG run statuses"
-          git push
+          git_status=$(git status --porcelain)
+          if [ -n "$git_status" ]; then
+            echo "Changes found"
+            git config --global user.name "airflow-oss-bot"
+            git config --global user.email "airflow-oss-bot@astronomer.io"
+            git add dag_run_statuses.json
+            git commit -m "Update DAG run statuses"
+            git push
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Deploy to GitHub Pages
         if: steps.check_changes.run == 'Changes found'
