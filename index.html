@@ -49,6 +49,7 @@
         .success {
             background-color: transparent;
             position: relative;
+            cursor: pointer;
         }
 
         .success::before {
@@ -60,9 +61,23 @@
             transform: translate(-50%, -50%);
         }
 
+        .success:hover::before {
+            content: attr(data-date); /* Display execution date on hover */
+            padding: 4px;
+            background-color: #4CAF50;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 2; /* Ensure text is above the icon (set to a value higher than the default z-index) */
+            position: absolute; /* Set a position value */
+            top: -20px; /* Adjust this value to position the content where you want */
+            left: 0; /* Adjust this value to position the content where you want */
+        }
+
         .failed {
             background-color: transparent;
             position: relative;
+            cursor: pointer;
         }
 
         .failed::before {
@@ -72,6 +87,23 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+        }
+
+            .failed:hover::before {
+            content: attr(data-date); /* Display execution date on hover */
+            padding: 4px;
+            background-color: #FF5733;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 2; /* Ensure text is above the icon (set to a value higher than the default z-index) */
+            position: absolute; /* Set a position value */
+            top: -20px; /* Adjust this value to position the content where you want */
+            left: 0; /* Adjust this value to position the content where you want */
+        }
+
+        .result-cell {
+            white-space: nowrap;
         }
 
         #error-message {
@@ -97,23 +129,17 @@
         <tr>
             <th>DAG ID</th>
             <th>Success</th>
-            <th>Failures</th>
-            <th>Run 1</th>
-            <th>Run 2</th>
-            <th>Run 3</th>
-            <th>Run 4</th>
-            <th>Run 5</th>
-            <th>Run 6</th>
-            <th>Run 7(Latest)</th>
+            <th>Failed</th>
+            <th>Last 7 runs (latest on the right)</th>
         </tr>
     </table>
     <div id="error-message"></div>
-    <div id="footer">Last updated: <span id="latest-run-time"></span></div> <!-- New footer element -->
+    <div id="footer">Last updated: <span id="latest-run-time"></span></div>
     <script>
         async function fetchDataAndDisplay() {
             const table = document.querySelector('table');
             const errorMessage = document.getElementById('error-message');
-            const latestRunTime = document.getElementById('latest-run-time'); // Reference to the latest run time span
+            const latestRunTime = document.getElementById('latest-run-time');
             const now = new Date();
 
             try {
@@ -122,21 +148,32 @@
                     throw new Error('Failed to fetch data');
                 }
                 const jsonData = await response.json();
-                let latestExecutionDate = new Date(0); // Initialize with a very old date
+                let latestExecutionDate = new Date(0);
 
                 for (const dagId in jsonData) {
                     if (jsonData.hasOwnProperty(dagId)) {
-                        let totalSuccess = 0;
-                        let totalFailure = 0;
+                        let successCount = 0;
+                        let failureCount = 0;
+                        let resultString = '';
 
                         for (let i = 0; i < jsonData[dagId].length; i++) {
                             const run = jsonData[dagId][i];
-                            if (run.status === 'success') {
-                                totalSuccess++;
-                            } else {
-                                totalFailure++;
-                            }
+                            const result = run.status === 'success' ? '✅' : '❌';
                             const executionDate = new Date(run.execution_date);
+                            const dateDiff = Math.floor((now - executionDate) / (1000 * 60 * 60 * 24));
+
+                            if (i > 0) {
+                                resultString += '  ';
+                            }
+
+                            // Add a click event to display execution date on click
+                            resultString += `<span class="result-icon ${run.status}" data-date="${executionDate}">${result}</span>`;
+
+                            if (run.status === 'success') {
+                                successCount++;
+                            } else {
+                                failureCount++;
+                            }
 
                             if (executionDate > latestExecutionDate) {
                                 latestExecutionDate = executionDate;
@@ -147,42 +184,23 @@
                         const cell1 = row.insertCell(0);
                         cell1.innerHTML = dagId;
                         const cell2 = row.insertCell(1);
-                        cell2.innerHTML = totalSuccess;
+                        cell2.innerHTML = successCount;
                         const cell3 = row.insertCell(2);
-                        cell3.innerHTML = totalFailure;
-
-                        for (let i = 0; i < jsonData[dagId].length; i++) {
-                            const run = jsonData[dagId][i];
-                            const cell = row.insertCell(i + 3);
-                            const result = document.createElement('span');
-                            result.className = run.status === 'success' ? 'success' : 'failed';
-                            cell.appendChild(result);
-                            const executionDate = new Date(run.execution_date);
-                            const dateDiff = Math.floor((now - executionDate) / (1000 * 60 * 60 * 24));
-
-                            if (dateDiff === 0) {
-                                // Display as 'today' with time
-                                cell.title = `Today at ${executionDate}`;
-                            } else if (dateDiff === 1) {
-                                // Display as 'yesterday' with time
-                                cell.title = `Yesterday at ${executionDate}`;
-                            } else {
-                                // Display as a full date with time
-                                cell.title = executionDate;
-                            }
-                        }
+                        cell3.innerHTML = failureCount;
+                        const cell4 = row.insertCell(3);
+                        cell4.className = 'result-cell';
+                        cell4.innerHTML = resultString;
                     }
                 }
 
-                // Set the latest run time in the footer
-                latestRunTime.textContent = latestExecutionDate;
+                latestRunTime.textContent = latestExecutionDate.toLocaleString();
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage.textContent = 'Error: ' + error.message;
             }
         }
+
         fetchDataAndDisplay();
     </script>
-
 </body>
 </html>
