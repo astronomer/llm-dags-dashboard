@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Airflow DAG Run Statuses</title>
+    <style>
+        .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .success {
+            background-color: green;
+        }
+        .failed {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Airflow DAG Run Statuses</h1>
+    <table border="1">
+        <tr>
+            <th>DAG ID</th>
+            <th>Status 1</th>
+            <th>Status 2</th>
+            <th>Status 3</th>
+            <th>Status 4</th>
+            <th>Status 5</th>
+            <th>Status 6</th>
+            <th>Status 7</th>
+        </tr>
+    </table>
+
+    <div id="error-message" style="color: red;"></div>
+
+    <script>
+        async function fetchDataAndDisplay() {
+            const table = document.querySelector('table');
+            const errorMessage = document.getElementById('error-message');
+
+            try {
+                const response = await fetch('dag_run_statuses.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const jsonData = await response.json();
+                for (const dagId in jsonData) {
+                    if (jsonData.hasOwnProperty(dagId)) {
+                        const row = table.insertRow(-1);
+                        const cell1 = row.insertCell(0);
+                        cell1.innerHTML = dagId;
+
+                        for (let i = 0; i < jsonData[dagId].length; i++) {
+                            const run = jsonData[dagId][i];
+                            const cell = row.insertCell(i + 1);
+                            const circle = document.createElement('div');
+                            circle.className = 'circle ' + (run.status === 'success' ? 'success' : 'failed');
+                            cell.appendChild(circle);
+                            cell.title = run.execution_date; // Set the title attribute for hover text
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Call the async function to fetch and display data
+        fetchDataAndDisplay();
+    </script>
+</body>
+</html>
