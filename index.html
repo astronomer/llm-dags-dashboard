@@ -2,11 +2,11 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Airflow DAG Run Statuses</title>
+    <title>Apache Airflow - LLM Provider Package Health</title>
     <style>
         .left-align {
-    text-align: left;
-  }
+            text-align: left;
+        }
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -42,26 +42,36 @@
 
         th {
             background-color: #fff;
-            color: black ;
+            color: black;
             border: 1px solid black;
         }
 
-        .circle {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
+        .success {
+            background-color: transparent;
+            position: relative;
         }
 
-
-
-        .success {
-            background-color: green;
+        .success::before {
+            content: "✅";
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .failed {
-            background-color: red;
+            background-color: transparent;
+            position: relative;
+        }
+
+        .failed::before {
+            content: "❌";
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         #error-message {
@@ -70,29 +80,40 @@
             font-weight: bold;
             margin-top: 20px;
         }
+
+        #footer {
+            text-align: left;
+            padding: 10px;
+            background-color: #4a4466;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Apache Airflow - LLM Provider Package Health</h1>
+        <h1 style="text-align: left;">Apache Airflow - LLM Provider Package Health</h1>
     </header>
     <table>
         <tr>
             <th>DAG ID</th>
-            <th>Status 1</th>
-            <th>Status 2</th>
-            <th>Status 3</th>
-            <th>Status 4</th>
-            <th>Status 5</th>
-            <th>Status 6</th>
-            <th>Status 7</th>
+            <th>Success</th>
+            <th>Failures</th>
+            <th>Run 1</th>
+            <th>Run 2</th>
+            <th>Run 3</th>
+            <th>Run 4</th>
+            <th>Run 5</th>
+            <th>Run 6</th>
+            <th>Run 7(Latest)</th>
         </tr>
     </table>
     <div id="error-message"></div>
+    <div id="footer">Last updated: <span id="latest-run-time"></span></div> <!-- New footer element -->
     <script>
         async function fetchDataAndDisplay() {
             const table = document.querySelector('table');
             const errorMessage = document.getElementById('error-message');
+            const latestRunTime = document.getElementById('latest-run-time'); // Reference to the latest run time span
             const now = new Date();
 
             try {
@@ -101,34 +122,60 @@
                     throw new Error('Failed to fetch data');
                 }
                 const jsonData = await response.json();
+                let latestExecutionDate = new Date(0); // Initialize with a very old date
+
                 for (const dagId in jsonData) {
                     if (jsonData.hasOwnProperty(dagId)) {
-                        const row = table.insertRow(-1);
-                        const cell1 = row.insertCell(0);
-                        cell1.innerHTML = dagId;
+                        let totalSuccess = 0;
+                        let totalFailure = 0;
 
                         for (let i = 0; i < jsonData[dagId].length; i++) {
                             const run = jsonData[dagId][i];
-                            const cell = row.insertCell(i + 1);
-                            const circle = document.createElement('div');
-                            circle.className = 'circle ' + (run.status === 'success' ? 'success' : 'failed');
-                            cell.appendChild(circle);
+                            if (run.status === 'success') {
+                                totalSuccess++;
+                            } else {
+                                totalFailure++;
+                            }
+                            const executionDate = new Date(run.execution_date);
+
+                            if (executionDate > latestExecutionDate) {
+                                latestExecutionDate = executionDate;
+                            }
+                        }
+
+                        const row = table.insertRow(-1);
+                        const cell1 = row.insertCell(0);
+                        cell1.innerHTML = dagId;
+                        const cell2 = row.insertCell(1);
+                        cell2.innerHTML = totalSuccess;
+                        const cell3 = row.insertCell(2);
+                        cell3.innerHTML = totalFailure;
+
+                        for (let i = 0; i < jsonData[dagId].length; i++) {
+                            const run = jsonData[dagId][i];
+                            const cell = row.insertCell(i + 3);
+                            const result = document.createElement('span');
+                            result.className = run.status === 'success' ? 'success' : 'failed';
+                            cell.appendChild(result);
                             const executionDate = new Date(run.execution_date);
                             const dateDiff = Math.floor((now - executionDate) / (1000 * 60 * 60 * 24));
 
                             if (dateDiff === 0) {
                                 // Display as 'today' with time
-                                cell.title = `Today at ${executionDate.toLocaleTimeString()}`;
+                                cell.title = `Today at ${executionDate}`;
                             } else if (dateDiff === 1) {
                                 // Display as 'yesterday' with time
-                                cell.title = `Yesterday at ${executionDate.toLocaleTimeString()}`;
+                                cell.title = `Yesterday at ${executionDate}`;
                             } else {
                                 // Display as a full date with time
-                                cell.title = executionDate.toLocaleString();
+                                cell.title = executionDate;
                             }
                         }
                     }
                 }
+
+                // Set the latest run time in the footer
+                latestRunTime.textContent = latestExecutionDate;
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage.textContent = 'Error: ' + error.message;
@@ -136,5 +183,6 @@
         }
         fetchDataAndDisplay();
     </script>
+
 </body>
 </html>
