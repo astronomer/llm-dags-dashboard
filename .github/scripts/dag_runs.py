@@ -13,7 +13,7 @@ HEADERS = {"Authorization": "Bearer " + AIRFLOW_API_TOKEN}
 
 def list_dags():
     response = requests.get(f"{AIRFLOW_API_URL}/dags", headers=HEADERS)
-    dags = [dag["dag_id"] for dag in response.json()['dags']]
+    dags = [dag["dag_id"] for dag in response.json()['dags'] if "example_master_dag" != dag['dag_id']]
     return dags
 
 

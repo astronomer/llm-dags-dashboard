@@ -27,13 +27,26 @@ jobs:
         run: pip install apache-airflow requests
 
       - name: Run script
+        working-directory: ./
         env:
             AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
             AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
-        run: python ./.github/scripts/dag_runs.py
+        run: python .github/scripts/dag_runs.py
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+            git_status=$(git status --porcelain)
+            if [ -n "$git_status" ]; then
+              echo "Changes found, committing and pushing."
+            else
+              echo "No changes to commit."
+              exit 0
+            fi
 
       - name: Commit and push changes
         run: |
+          if: steps.check_changes.outcome == 'success'
           git config --global user.name "airflow-oss-bot"
           git config --global user.email "airflow-oss-bot@astronomer.io"
           git add dag_run_statuses.json
@@ -41,6 +54,7 @@ jobs:
           git push
 
       - name: Deploy to GitHub Pages
+        if: steps.check_changes.outcome == 'success'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

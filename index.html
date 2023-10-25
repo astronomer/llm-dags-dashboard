@@ -1,8 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Airflow DAG Run Statuses</title>
     <style>
+        .left-align {
+    text-align: left;
+  }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4a4466;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 20px;
+            background-color: #fff;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #fff;
+            color: black ;
+            border: 1px solid black;
+        }
+
         .circle {
             width: 20px;
             height: 20px;
@@ -10,17 +53,30 @@
             display: inline-block;
             margin-right: 5px;
         }
+
+
+
         .success {
             background-color: green;
         }
+
         .failed {
             background-color: red;
+        }
+
+        #error-message {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Airflow DAG Run Statuses</h1>
-    <table border="1">
+    <header>
+        <h1>Apache Airflow - LLM Provider Package Health</h1>
+    </header>
+    <table>
         <tr>
             <th>DAG ID</th>
             <th>Status 1</th>
@@ -32,13 +88,12 @@
             <th>Status 7</th>
         </tr>
     </table>
-
-    <div id="error-message" style="color: red;"></div>
-
+    <div id="error-message"></div>
     <script>
         async function fetchDataAndDisplay() {
             const table = document.querySelector('table');
             const errorMessage = document.getElementById('error-message');
+            const now = new Date();
 
             try {
                 const response = await fetch('dag_run_statuses.json');
@@ -58,7 +113,19 @@
                             const circle = document.createElement('div');
                             circle.className = 'circle ' + (run.status === 'success' ? 'success' : 'failed');
                             cell.appendChild(circle);
-                            cell.title = run.execution_date; // Set the title attribute for hover text
+                            const executionDate = new Date(run.execution_date);
+                            const dateDiff = Math.floor((now - executionDate) / (1000 * 60 * 60 * 24));
+
+                            if (dateDiff === 0) {
+                                // Display as 'today' with time
+                                cell.title = `Today at ${executionDate.toLocaleTimeString()}`;
+                            } else if (dateDiff === 1) {
+                                // Display as 'yesterday' with time
+                                cell.title = `Yesterday at ${executionDate.toLocaleTimeString()}`;
+                            } else {
+                                // Display as a full date with time
+                                cell.title = executionDate.toLocaleString();
+                            }
                         }
                     }
                 }
@@ -67,8 +134,6 @@
                 errorMessage.textContent = 'Error: ' + error.message;
             }
         }
-
-        // Call the async function to fetch and display data
         fetchDataAndDisplay();
     </script>
 </body>
