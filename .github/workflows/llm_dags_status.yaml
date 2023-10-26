@@ -54,3 +54,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
+
+      - name: Send Slack Message
+        env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+            MESSAGE="LLM Dashboard job run success! Visit https://astronomer.github.io/llm-dags-dashboard for more details"
+            curl -X POST -H 'Content-type: application/json' --data '{
+              "text": "'"$MESSAGE"'"
+            }' $SLACK_WEBHOOK_URL
+
