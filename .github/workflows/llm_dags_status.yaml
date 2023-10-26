@@ -9,6 +9,8 @@ on:
         description: 'The git revision to deploy'
         required: false
         default: ''
+  repository_dispatch:
+    types: [ trigger-action ]
 
 jobs:
   update-dag-status:
