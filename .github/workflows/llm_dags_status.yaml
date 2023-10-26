@@ -61,4 +61,4 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
         with:
-          text: '[LLM Dashboard](https://astronomer.github.io/llm-dags-dashboard/) updated '
+          slack-message: '[LLM Dashboard](https://astronomer.github.io/llm-dags-dashboard/) updated '
