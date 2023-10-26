@@ -59,6 +59,7 @@ jobs:
         env:
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+            sleep 300s  # GH Dashboard takes 5 minutes to update sleeping for that time
             MESSAGE="LLM Dashboard job run success! Visit https://astronomer.github.io/llm-dags-dashboard for more details"
             curl -X POST -H 'Content-type: application/json' --data '{
               "text": "'"$MESSAGE"'"
