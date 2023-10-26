@@ -20,8 +20,12 @@ def list_dags():
 def get_latest_dag_run_statuses(dags):
     dag_run_statuses = defaultdict(list)
     for dag_id in dags:
-        response = requests.get(f"{AIRFLOW_API_URL}/dags/{dag_id}/dagRuns?limit=7", headers=HEADERS)
+        response = requests.get(f"{AIRFLOW_API_URL}/dags/{dag_id}/dagRuns", headers=HEADERS)
         dag_runs = response.json()['dag_runs']
+        if len(dag_runs) >= 7:
+            dag_runs = dag_runs[-7:]
+        else:
+            dag_runs = dag_runs
         for dag_run in dag_runs:
             dag_run_statuses[str(dag_id)].append(
                 {
