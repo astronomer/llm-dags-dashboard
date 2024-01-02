@@ -25,38 +25,38 @@ on:  # yamllint disable-line rule:truthy
         default: ''
 
 jobs:
-#  deploy-to-providers-llm-integration-tests:
-#    if: |
-#      contains(fromJSON('["providers-llm-integration-tests"]'), inputs.environment_to_deploy) ||
-#      github.event_name == 'schedule'
-#    uses: ./.github/workflows/reuse-wf-deploy-to-astro-cloud.yaml
-#    with:
-#      git_rev: ${{ inputs.git_rev }}
-#      environment_to_deploy: 'providers-llm-integration-tests'
-#    secrets:
-#      docker_registry: ${{ secrets.ASTRO_DOCKER_REGISTRY }}
-#      organization_id: ${{ secrets.ORGANIZATION_ID }}
-#      deployment_id: ${{ secrets.PROVIDER_LLM_INTEGRATION_TESTS_DEPLOYMENT_ID }}
-#      bearer_token: ${{ secrets.BEARER_TOKEN }}
-#      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-#
-#
-#  wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests:
-#    if: |
-#      github.event_name == 'schedule' ||
-#      (github.event_name == 'workflow_dispatch' && inputs.dags_to_trigger_after_deployment != '')
-#    needs: deploy-to-providers-llm-integration-tests
-#    uses: ./.github/workflows/reuse-wf-trigger-dag.yaml
-#    with:
-#      git_rev: ${{ inputs.git_rev }}
-#      dags_to_trigger_after_deployment: ${{ inputs.dags_to_trigger_after_deployment }}
-#    secrets:
-#      deployment_id: ${{ secrets.PROVIDER_LLM_INTEGRATION_TESTS_DEPLOYMENT_ID }}
-#      organization_id: ${{ secrets.ORGANIZATION_ID }}
-#      bearer_token: ${{ secrets.BEARER_TOKEN }}
+  deploy-to-providers-llm-integration-tests:
+    if: |
+      contains(fromJSON('["providers-llm-integration-tests"]'), inputs.environment_to_deploy) ||
+      github.event_name == 'schedule'
+    uses: ./.github/workflows/reuse-wf-deploy-to-astro-cloud.yaml
+    with:
+      git_rev: ${{ inputs.git_rev }}
+      environment_to_deploy: 'providers-llm-integration-tests'
+    secrets:
+      docker_registry: ${{ secrets.ASTRO_DOCKER_REGISTRY }}
+      organization_id: ${{ secrets.ORGANIZATION_ID }}
+      deployment_id: ${{ secrets.PROVIDER_LLM_INTEGRATION_TESTS_DEPLOYMENT_ID }}
+      bearer_token: ${{ secrets.BEARER_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+  wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests:
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.dags_to_trigger_after_deployment != '')
+    needs: deploy-to-providers-llm-integration-tests
+    uses: ./.github/workflows/reuse-wf-trigger-dag.yaml
+    with:
+      git_rev: ${{ inputs.git_rev }}
+      dags_to_trigger_after_deployment: ${{ inputs.dags_to_trigger_after_deployment }}
+    secrets:
+      deployment_id: ${{ secrets.PROVIDER_LLM_INTEGRATION_TESTS_DEPLOYMENT_ID }}
+      organization_id: ${{ secrets.ORGANIZATION_ID }}
+      bearer_token: ${{ secrets.BEARER_TOKEN }}
 
   Trigger-dashboard-wf:
-    #needs: wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests
+    needs: wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests
     uses: ./.github/workflows/reuse-wf-llm-dags-status.yaml
     with:
       git_rev: ${{ inputs.git_rev }}
@@ -64,11 +64,3 @@ jobs:
       AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
       AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-               #  - name: Sleep for 30 minutes for master dag to complete
-#        run: sleep 15s
-#        shell: bash
-#      - name: Trigger update dashboard wf
-#        uses: ./.github/workflows/reuse-wf-llm-dags-status.yaml
-#        with:
-#          git_rev: ${{ inputs.git_rev }}
