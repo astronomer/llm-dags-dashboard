@@ -1,5 +1,5 @@
 ---
-name: Deploy integration tests to astro cloud
+name: Update Airflow DAG Status
 
 on:  # yamllint disable-line rule:truthy
   schedule:

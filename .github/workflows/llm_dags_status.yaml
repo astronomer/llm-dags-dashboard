@@ -1,4 +1,4 @@
-name: Update Airflow DAG Status
+name: Update Airflow DAG Status1
 
 on:
   schedule:
