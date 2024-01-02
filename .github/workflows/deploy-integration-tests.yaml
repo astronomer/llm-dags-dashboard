@@ -60,6 +60,9 @@ jobs:
     uses: ./.github/workflows/reuse-wf-llm-dags-status.yaml
     with:
       git_rev: ${{ inputs.git_rev }}
+    secrets:
+      AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
+      AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
 
                #  - name: Sleep for 30 minutes for master dag to complete
 #        run: sleep 15s

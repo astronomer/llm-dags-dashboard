@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import requests
 import json
+import time
 
 AIRFLOW_API_URL = os.environ.get('AIRFLOW_API_URL')
 
@@ -27,6 +28,12 @@ def get_latest_dag_run_statuses(dags):
         else:
             dag_runs = dag_runs
         for dag_run in dag_runs:
+            while dag_run["state"] == "running":
+                # Wait for a certain period (e.g., 5 seconds) before retrying
+                time.sleep(5)
+                response = requests.get(f"{AIRFLOW_API_URL}/dags/{dag_id}/dagRuns", headers=HEADERS)
+                dag_run = response.json()['dag_runs'][-1]
+
             dag_run_statuses[str(dag_id)].append(
                 {
                     "status": dag_run["state"],

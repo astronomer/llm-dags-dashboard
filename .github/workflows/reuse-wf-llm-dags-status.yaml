@@ -17,6 +17,13 @@ on:
           required: false
           type: string
           default: ''
+      secrets:
+        AIRFLOW_API_URL:
+          description: 'airflow api url'
+          required: true
+        AIRFLOW_API_TOKEN:
+          description: 'airflow api token'
+          required: true
 
 jobs:
   update-dag-status:
