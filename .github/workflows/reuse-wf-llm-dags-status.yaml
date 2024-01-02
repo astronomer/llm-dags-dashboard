@@ -1,4 +1,5 @@
-name: Update Airflow DAG Status
+---
+name: (Reusable workflows) Update Airflow DAG Status
 
 on:
   schedule:
