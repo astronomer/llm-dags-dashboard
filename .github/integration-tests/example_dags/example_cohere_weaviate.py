@@ -58,7 +58,7 @@ def example_cohere_weaviate():
     perform_ingestion = WeaviateIngestOperator(
         task_id="perform_ingestion",
         conn_id="weaviate_default",
-        class_name="Weaviate_example_class",
+        class_name="Weaviate_example_class_test",
         input_json=update_vector_data_in_json["return_value"],
     )
 
