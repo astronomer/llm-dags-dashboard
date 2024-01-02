@@ -93,8 +93,5 @@ function deploy(){
 }
 
 
-cp -r "${PROJECT_PATH}"/example_dags "${SCRIPT_PATH}"/example_dags
-
-
 
 deploy $ASTRO_DOCKER_REGISTRY $ASTRO_ORGANIZATION_ID $ASTRO_DEPLOYMENT_ID $TOKEN $MASTER_DAG_DOCKERFILE
