@@ -10,8 +10,13 @@ on:
         description: 'The git revision to deploy'
         required: false
         default: ''
-  repository_dispatch:
-    types: [ trigger-action ]
+  workflow_call:
+      inputs:
+        git_rev:
+          description: 'The git revision to deploy'
+          required: false
+          type: string
+          default: ''
 
 jobs:
   update-dag-status:
