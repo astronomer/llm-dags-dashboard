@@ -4,8 +4,6 @@ name: Deploy integration tests to astro cloud
 on:  # yamllint disable-line rule:truthy
   schedule:
     - cron: "0 19 * * *"
-  pull_request:
-    types: [ opened, reopened ]
   workflow_dispatch:
     inputs:
       git_rev:
