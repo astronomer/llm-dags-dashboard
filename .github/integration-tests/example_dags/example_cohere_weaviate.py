@@ -28,7 +28,7 @@ def example_cohere_weaviate():
         weaviate_hook = WeaviateHook()
         # Class definition object. Weaviate's autoschema feature will infer properties when importing.
         class_obj = {
-            "class": "Weaviate_example_class",
+            "class": "Weaviate_example_class_test",
             "vectorizer": "none",
         }
         weaviate_hook.create_class(class_obj)
@@ -58,7 +58,7 @@ def example_cohere_weaviate():
     perform_ingestion = WeaviateIngestOperator(
         task_id="perform_ingestion",
         conn_id="weaviate_default",
-        class_name="Weaviate_example_class",
+        class_name="Weaviate_example_class_test",
         input_json=update_vector_data_in_json["return_value"],
     )
 
@@ -76,7 +76,7 @@ def example_cohere_weaviate():
         weaviate_hook = WeaviateHook()
         # Class definition object. Weaviate's autoschema feature will infer properties when importing.
 
-        weaviate_hook.delete_classes(["Weaviate_example_class"])
+        weaviate_hook.delete_classes(["Weaviate_example_class_test"])
 
     (
         create_weaviate_class()

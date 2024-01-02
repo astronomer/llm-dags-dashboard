@@ -93,12 +93,5 @@ function deploy(){
 }
 
 
-#mkdir "${SCRIPT_PATH}"/llm
-cp -r "${PROJECT_PATH}"/astronomer_providers_llm "${SCRIPT_PATH}"
-cp -r "${PROJECT_PATH}"/pyproject.toml "${SCRIPT_PATH}"
-cp -r "${PROJECT_PATH}"/README.md "${SCRIPT_PATH}"
-cp -r "${PROJECT_PATH}"/example_dags "${SCRIPT_PATH}"/example_dags
-
-
 
 deploy $ASTRO_DOCKER_REGISTRY $ASTRO_ORGANIZATION_ID $ASTRO_DEPLOYMENT_ID $TOKEN $MASTER_DAG_DOCKERFILE

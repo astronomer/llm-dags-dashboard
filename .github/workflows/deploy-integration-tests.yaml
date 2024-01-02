@@ -55,21 +55,12 @@ jobs:
       organization_id: ${{ secrets.ORGANIZATION_ID }}
       bearer_token: ${{ secrets.BEARER_TOKEN }}
 
-#  Trigger-dashboard-wf:
-#    runs-on: ubuntu-latest
-#    needs: wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests
-#    steps:
-#      - name: Sleep for 30 minutes for master dag to complete
-#        run: sleep 1800s
-#        shell: bash
-#      - name: Trigger Target Workflow
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-#        run: |
-#          REPO="astronomer/llm-dags-dashboard"
-#          EVENT_TYPE="trigger-action"
-#          curl -X POST \
-#            -H "Authorization: token $GITHUB_TOKEN" \
-#            -H "Accept: application/vnd.github.everest-preview+json" \
-#            "https://api.github.com/repos/$REPO/dispatches" \
-#            -d "{\"event_type\":\"$EVENT_TYPE\"}"
+  Trigger-dashboard-wf:
+    needs: wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests
+    uses: ./.github/workflows/reuse-wf-llm-dags-status.yaml
+    with:
+      git_rev: ${{ inputs.git_rev }}
+    secrets:
+      AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
+      AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

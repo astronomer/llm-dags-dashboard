@@ -1,4 +1,5 @@
-name: Update Airflow DAG Status
+---
+name: (Reusable workflows) Update Airflow DAG Status
 
 on:
   schedule:
@@ -9,8 +10,24 @@ on:
         description: 'The git revision to deploy'
         required: false
         default: ''
-  repository_dispatch:
-    types: [ trigger-action ]
+  workflow_call:
+      inputs:
+        git_rev:
+          description: 'The git revision to deploy'
+          required: false
+          type: string
+          default: ''
+      secrets:
+        AIRFLOW_API_URL:
+          description: 'airflow api url'
+          required: true
+        AIRFLOW_API_TOKEN:
+          description: 'airflow api token'
+          required: true
+        SLACK_WEBHOOK_URL:
+          description: 'slack webhook url'
+          required: true
+
 
 jobs:
   update-dag-status:
