@@ -63,6 +63,7 @@ jobs:
     secrets:
       AIRFLOW_API_URL: ${{ secrets.AIRFLOW_API_URL }}
       AIRFLOW_API_TOKEN: ${{ secrets.AIRFLOW_API_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
                #  - name: Sleep for 30 minutes for master dag to complete
 #        run: sleep 15s

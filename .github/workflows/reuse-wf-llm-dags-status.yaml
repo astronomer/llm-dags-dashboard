@@ -24,6 +24,10 @@ on:
         AIRFLOW_API_TOKEN:
           description: 'airflow api token'
           required: true
+        SLACK_WEBHOOK_URL:
+          description: 'slack webhook url'
+          required: true
+
 
 jobs:
   update-dag-status:
