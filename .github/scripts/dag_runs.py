@@ -28,6 +28,7 @@ def get_latest_dag_run_statuses(dags):
         else:
             dag_runs = dag_runs
         for dag_run in dag_runs:
+            print(f"dag run state is {dag_run['state']}")
             while dag_run["state"] == "running":
                 # Wait for a certain period (e.g., 5 seconds) before retrying
                 time.sleep(5)
