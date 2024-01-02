@@ -1,0 +1,75 @@
+---
+name: Deploy integration tests to astro cloud
+
+on:  # yamllint disable-line rule:truthy
+  schedule:
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+    inputs:
+      git_rev:
+        description: 'The git revision to deploy'
+        required: false
+        default: ''
+      environment_to_deploy:
+        description: 'astro cloud deployment to deploy to'
+        required: true
+        type: choice
+        options:
+          - providers-llm-integration-tests
+      dags_to_trigger_after_deployment:
+        description: |
+          Comma separated list of dag_ids to trigger after deployment
+          (e.g. example_master_dag")
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  deploy-to-providers-llm-integration-tests:
+    if: |
+      contains(fromJSON('["providers-llm-integration-tests"]'), inputs.environment_to_deploy) ||
+      github.event_name == 'schedule'
+    uses: ./.github/workflows/reuse-wf-deploy-to-astro-cloud.yaml
+    with:
+      git_rev: ${{ inputs.git_rev }}
+      environment_to_deploy: 'providers-llm-integration-tests'
+    secrets:
+      docker_registry: ${{ secrets.ASTRO_DOCKER_REGISTRY }}
+      organization_id: ${{ secrets.ORGANIZATION_ID }}
+      deployment_id: ${{ secrets.PROVIDER_LLM_INTEGRATION_TESTS_DEPLOYMENT_ID }}
+      bearer_token: ${{ secrets.BEARER_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+  wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests:
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.dags_to_trigger_after_deployment != '')
+    needs: deploy-to-providers-llm-integration-tests
+    uses: ./.github/workflows/reuse-wf-trigger-dag.yaml
+    with:
+      git_rev: ${{ inputs.git_rev }}
+      dags_to_trigger_after_deployment: ${{ inputs.dags_to_trigger_after_deployment }}
+    secrets:
+      deployment_id: ${{ secrets.PROVIDER_LLM_INTEGRATION_TESTS_DEPLOYMENT_ID }}
+      organization_id: ${{ secrets.ORGANIZATION_ID }}
+      bearer_token: ${{ secrets.BEARER_TOKEN }}
+
+#  Trigger-dashboard-wf:
+#    runs-on: ubuntu-latest
+#    needs: wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests
+#    steps:
+#      - name: Sleep for 30 minutes for master dag to complete
+#        run: sleep 1800s
+#        shell: bash
+#      - name: Trigger Target Workflow
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#        run: |
+#          REPO="astronomer/llm-dags-dashboard"
+#          EVENT_TYPE="trigger-action"
+#          curl -X POST \
+#            -H "Authorization: token $GITHUB_TOKEN" \
+#            -H "Accept: application/vnd.github.everest-preview+json" \
+#            "https://api.github.com/repos/$REPO/dispatches" \
+#            -d "{\"event_type\":\"$EVENT_TYPE\"}"
