@@ -31,6 +31,7 @@ def get_latest_dag_run_statuses(dags):
             print(f"dag run state is {dag_run['state']} and {dag_run['execution_date']}")
             while dag_run["state"] == "running":
                 # Wait for a certain period (e.g., 5 seconds) before retrying
+                print("sleeping")
                 time.sleep(200)
                 response = requests.get(f"{AIRFLOW_API_URL}/dags/{dag_id}/dagRuns", headers=HEADERS)
                 dag_run = response.json()['dag_runs'][-1]
