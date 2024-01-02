@@ -60,7 +60,7 @@ jobs:
     needs: wait-for-deployment-to-be-ready-and-trigger-dags-for-providers-llm-integration-tests
     steps:
       - name: Sleep for 30 minutes for master dag to complete
-        run: sleep 5s
+        run: sleep 15s
         shell: bash
       - name: Trigger update dashboard wf
         uses: ./.github/workflows/reuse-wf-llm-dags-status.yaml
