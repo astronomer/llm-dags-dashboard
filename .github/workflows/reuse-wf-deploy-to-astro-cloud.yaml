@@ -53,10 +53,10 @@ jobs:
           breeze release-management prepare-provider-packages \
           openai cohere pinecone weaviate pgvector --skip-tag-check
           cp -r airflow/dist .              
-          cp -r airflow/tests/system/providers/cohere \
-          && cp -r airflow/tests/system/providers/weaviate \
-          && cp -r airflow/tests/system/providers/pinecone \
-          && cp -r airflow/tests/system/providers/openai \
+          cp -r airflow/tests/system/providers/cohere  . \
+          && cp -r airflow/tests/system/providers/weaviate . \
+          && cp -r airflow/tests/system/providers/pinecone . \
+          && cp -r airflow/tests/system/providers/openai . \
           && cp -r airflow/tests/system/providers/pgvector .
 #          for folder in cohere weaviate pinecone openai pgvector; do
 #            for file in $folder/*.py; do
