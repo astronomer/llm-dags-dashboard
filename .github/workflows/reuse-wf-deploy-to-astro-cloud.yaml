@@ -58,11 +58,11 @@ jobs:
           && cp -r airflow/tests/system/providers/pinecone . \
           && cp -r airflow/tests/system/providers/openai . \
           && cp -r airflow/tests/system/providers/pgvector .
-#          for folder in cohere weaviate pinecone openai pgvector; do
-#            for file in $folder/*.py; do
-#              python ../scripts/refactor_dag.py $file
-#            done
-#          done
+          for folder in cohere weaviate pinecone openai pgvector; do
+            for file in $folder/*.py; do
+              python ../scripts/refactor_dag.py $file
+            done
+          done
       - name: deploy
         working-directory: .github/integration-tests
         run: |
