@@ -70,3 +70,4 @@ jobs:
             ${{ secrets.deployment_id }} \
             ${{secrets.bearer_token }} \
             --dag-ids "${{ inputs.dags_to_trigger_after_deployment }}"
+          sleep 100s 
