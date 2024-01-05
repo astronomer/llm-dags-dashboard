@@ -205,7 +205,7 @@ with DAG(
 
     cohere_dags_info = [
         {"cohere_dag": "example_cohere_embedding"},
-        {"cohere_weaviate_dag": "example_weaviate_cohere_dag"},
+        {"cohere_weaviate_dag": "example_weaviate_cohere"},
     ]
     cohere_tasks, ids = prepare_dag_dependency(cohere_dags_info, "{{ ts }}")
     dag_run_ids.extend(ids)
