@@ -195,8 +195,7 @@ with DAG(
     chain(*pinecone_tasks)
 
     openai_dag_info = [
-        {"openai_dag": "example_openai_dag"},
-        {"openai_weaviate": "example_weaviate_openai"},
+        {"openai_dag": "example_openai_dag"}
     ]
 
     openai_tasks, ids = prepare_dag_dependency(openai_dag_info, "{{ ts }}")
@@ -206,6 +205,7 @@ with DAG(
     cohere_dags_info = [
         {"cohere_dag": "example_cohere_embedding"},
         {"cohere_weaviate_dag": "example_weaviate_cohere"},
+        {"openai_weaviate": "example_weaviate_openai"},
     ]
     cohere_tasks, ids = prepare_dag_dependency(cohere_dags_info, "{{ ts }}")
     dag_run_ids.extend(ids)

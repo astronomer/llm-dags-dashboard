@@ -65,7 +65,6 @@ jobs:
       - name: Trigger DAG(s)
         working-directory: .github/integration-tests
         run: |
-          sleep 100s
           python3 trigger_dag.py \
             ${{ secrets.organization_id }} \
             ${{ secrets.deployment_id }} \
