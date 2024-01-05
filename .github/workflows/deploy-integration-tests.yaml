@@ -46,6 +46,7 @@ jobs:
       github.event_name == 'schedule' ||
       (github.event_name == 'workflow_dispatch' && inputs.dags_to_trigger_after_deployment != '')
     needs: deploy-to-providers-llm-integration-tests
+    runs-on: ubuntu-latest
 #    uses: ./.github/workflows/reuse-wf-trigger-dag.yaml
 #    with:
 #      git_rev: ${{ inputs.git_rev }}
